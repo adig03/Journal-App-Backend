@@ -29,11 +29,11 @@ public class JournalEntryService {
         JournalEntry saved = journalEntryRepo.save(journalEntry);
         if(user.isPresent()) {
             user.get().getJournalEntries().add(saved);
-            userService.saveEntry(user.get());
+            userService.saveNewUser(user.get());
         }
     }
 
-    public void saveJournal(JournalEntry journalEntry){
+    public void saveNewJournal(JournalEntry journalEntry){
     journalEntryRepo.save(journalEntry);
     }
 
@@ -50,7 +50,7 @@ public class JournalEntryService {
 
         if(user.isPresent()){
           user.get().getJournalEntries().removeIf( x -> x.getId().equals(myId));
-          userService.saveEntry(user.get());
+          userService.saveNewUser(user.get());
           journalEntryRepo.deleteById(myId);
         }
 

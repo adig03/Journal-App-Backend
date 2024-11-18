@@ -10,8 +10,11 @@ import org.apache.catalina.User;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
         import java.time.LocalDate;
@@ -25,31 +28,33 @@ public class UserController {
     @Autowired
     private UserEntryService userService;
 
+//
+//    @GetMapping
+//    public ResponseEntity<?> getAllUsers(){
+//        try{
+//            List<UserEntry> userEntries  = userService.getAll();
+//            return new ResponseEntity<>(userEntries , HttpStatus.OK);
+//        }catch(Exception e){
+//            return new ResponseEntity<>(e ,HttpStatus.BAD_REQUEST);
+//        }
+//    }
 
-    @GetMapping
-    public ResponseEntity<?> getAllUsers(){
-        try{
-            List<UserEntry> userEntries  = userService.getAll();
-            return new ResponseEntity<>(userEntries , HttpStatus.OK);
-        }catch(Exception e){
-            return new ResponseEntity<>(e ,HttpStatus.BAD_REQUEST);
-        }
-    }
+//
+//    @GetMapping("/{name}")
+//    public ResponseEntity<?> getASpecifiedUser(@PathVariable String name){
+//        Optional<UserEntry> UserEntry = userService.getSpecifiedUser(name);
+//
+//        if(UserEntry.isPresent()){
+//            return new ResponseEntity<>(UserEntry.get() , HttpStatus.OK);
+//        }
+//        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//    }
 
 
-    @GetMapping("/{name}")
-    public ResponseEntity<?> getASpecifiedUser(@PathVariable String name){
-        Optional<UserEntry> UserEntry = userService.getSpecifiedUser(name);
-
-        if(UserEntry.isPresent()){
-            return new ResponseEntity<>(UserEntry.get() , HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
-
-
-    @PutMapping("/{name}")
-    public  ResponseEntity<?> updateAnUser(@PathVariable String name, @RequestBody UserEntry newEntry){
+    @PutMapping()
+    public  ResponseEntity<?> updateAnUser(@RequestBody UserEntry newEntry){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String name = authentication.getName();
         Optional<UserEntry> userInDB = userService.getSpecifiedUser(name);
 
         if(userInDB.isPresent()){
@@ -61,19 +66,10 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping
-    public ResponseEntity<?> saveAnEntry(@RequestBody UserEntry Entry ){
-        try{
-            userService.saveEntry(Entry);
-            return new  ResponseEntity<>(Entry , HttpStatus.OK);
-        }
-        catch(Exception e){
-            return new ResponseEntity<>(e , HttpStatus.BAD_REQUEST);
-        }
-    }
-    @DeleteMapping("/{name}")
-    public ResponseEntity<?> deleteAnUser(@PathVariable String name){
-
+    @DeleteMapping()
+    public ResponseEntity<?> deleteAnUser(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String name = authentication.getName();
         Optional<UserEntry> searchedUser = userService.getSpecifiedUser(name);
 
         if(searchedUser.isPresent()){
